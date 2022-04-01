@@ -1,0 +1,5 @@
+freertos.c:104:6:MX_FREERTOS_Init	8	static
+freertos.c:159:6:StartLed4Task	16	static
+freertos.c:177:6:StartHardBitTask	16	static
+freertos.c:207:6:StartAccTask	72	static
+freertos.c:250:6:_putchar	16	static
