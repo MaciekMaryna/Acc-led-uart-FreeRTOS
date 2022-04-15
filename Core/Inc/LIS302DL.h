@@ -56,9 +56,6 @@
 #define LIS302DL_Z_ENABLE                     ((uint8_t)0x04)
 #define LIS302DL_XYZ_ENABLE                   ((uint8_t)0x07)
 
-//Sensitivity
-#define LIS302DL_SENSITIVITY_0_018G            0.018f  // 18 mg/digit
-#define LIS302DL_SENSITIVITY_0_072G            0.072f  // 72 mg/digit
 
 //Typedefs
 //Accelerometer config struct
@@ -73,7 +70,7 @@ typedef struct
 	uint8_t filterConfig;		// 0: no filtering, see reference CTRL_REG2(21h)
 	uint8_t interruptConfig;	// 0: no interrupt, see reference CTRL_REG2(22h)
 
-}LIS302DL_InitTypeDef;
+}LIS302DL_Init_t;
 
 //Accelerometer raw data
 typedef struct
@@ -81,7 +78,7 @@ typedef struct
 	int8_t x;
 	int8_t y;
 	int8_t z;
-}LIS302DL_DataRaw;
+}LIS302DL_DataRaw_t;
 
 //Accelerometer scaled data [g]
 typedef struct
@@ -89,24 +86,19 @@ typedef struct
 	float x;
 	float y;
 	float z;
-}LIS302DL_DataScaled;
-
-
-//Private functions prototypes
-//Write IO
-void LIS302DL_WriteIO(uint8_t reg, uint8_t *dataW, uint8_t size);
-//Read IO
-void LIS302DL_ReadIO(uint8_t reg, uint8_t *dataR, uint8_t size);
+}LIS302DL_DataScaled_t;
 
 
 //Accelerometer initialise function
-void LIS302DL_Init(SPI_HandleTypeDef *accSPI, LIS302DL_InitTypeDef *accInitDef);
+void LIS302DL_Init(SPI_HandleTypeDef *accSPI, LIS302DL_Init_t *accInitDef);
 //Get Accelerometer raw data
-LIS302DL_DataRaw LIS302DL_GetDataRaw(void);
+LIS302DL_DataRaw_t LIS302DL_GetDataRaw(void);
 //Get Accelerometer mg data
-LIS302DL_DataScaled LIS302DL_GetDataScaled(void);
+LIS302DL_DataScaled_t LIS302DL_GetDataScaled(void);
 //Poll for Data Ready
 bool LIS302DL_PollDRDY(uint32_t msTimeout);
+//Check Data Ready withot polling
+bool LIS302DL_DRDY_Test();
 
 //** Calibration functions **//
 //Set X-Axis calibrate

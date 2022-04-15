@@ -1,9 +1,10 @@
 #MicroXplorer Configuration settings - do not modify
-FREERTOS.BinarySemaphores01=PrintSemaphore,Dynamic,NULL
+FREERTOS.BinarySemaphores01=SemaphoreUartTransmitData,Dynamic,NULL;SemaphoreGetData,Dynamic,NULL;SemaphorePcRequestDataToLed,Dynamic,NULL;SemaphorePcRequestDataToText,Dynamic,NULL
 FREERTOS.FootprintOK=true
-FREERTOS.IPParameters=Tasks01,FootprintOK,BinarySemaphores01,Mutexes01
-FREERTOS.Mutexes01=PrintUartMutex,Dynamic,NULL
-FREERTOS.Tasks01=Led4Task,24,128,StartLed4Task,Default,NULL,Dynamic,NULL,NULL;HardBitTask,24,128,StartHardBitTask,Default,NULL,Dynamic,NULL,NULL;AccTask,24,256,StartAccTask,Default,NULL,Dynamic,NULL,NULL
+FREERTOS.IPParameters=Tasks01,FootprintOK,BinarySemaphores01,Queues01,Timers01
+FREERTOS.Queues01=QueueAccData,8,LIS302DL_DataScaled_t,0,Dynamic,NULL,NULL;QueueUartTransmitData,8,LIS302DL_DataScaled_t,0,Dynamic,NULL,NULL
+FREERTOS.Tasks01=MainTask,24,256,StartMainTask,Default,NULL,Dynamic,NULL,NULL;HardBitTask,24,128,StartHardBitTask,Default,NULL,Dynamic,NULL,NULL;AccTask,24,128,StartAccTask,Default,NULL,Dynamic,NULL,NULL;UartTask,24,256,StartUartTask,Default,NULL,Dynamic,NULL,NULL
+FREERTOS.Timers01=TimerPcRequestSimulator,CallbackTimerPcRequestSimulator,osTimerPeriodic,Default,NULL,Dynamic,NULL;TimerUartTransmitData,CallbackTimerUartTransmitData,osTimerPeriodic,Default,NULL,Dynamic,NULL
 File.Version=6
 GPIO.groupedBy=Group By Peripherals
 KeepUserPlacement=false
@@ -51,6 +52,7 @@ NVIC.SysTick_IRQn=true\:15\:0\:false\:false\:false\:true\:false\:true
 NVIC.TIM1_UP_TIM10_IRQn=true\:15\:0\:false\:false\:true\:false\:false\:true
 NVIC.TimeBase=TIM1_UP_TIM10_IRQn
 NVIC.TimeBaseIP=TIM10
+NVIC.USART2_IRQn=true\:5\:0\:false\:true\:true\:1\:true\:true\:true
 NVIC.UsageFault_IRQn=true\:0\:0\:false\:false\:true\:false\:false\:false
 PA2.Mode=Asynchronous
 PA2.Signal=USART2_TX

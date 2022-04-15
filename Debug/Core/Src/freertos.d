@@ -40,10 +40,11 @@ Core/Src/freertos.o: ../Core/Src/freertos.c \
  ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.h \
  ../Core/Inc/usart.h ../Core/Inc/main.h ../Core/Inc/spi.h \
- ../Core/Inc/printf.h ../Core/Inc/LIS302DL.h \
+ ../Core/Inc/printf.h ../Core/Inc/LIS302DL.h ../Core/Inc/Led.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h \
- ../Middlewares/Third_Party/FreeRTOS/Source/include/task.h
+ ../Middlewares/Third_Party/FreeRTOS/Source/include/task.h \
+ ../Middlewares/Third_Party/FreeRTOS/Source/include/timers.h
 
 ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h:
 
@@ -137,8 +138,12 @@ Core/Src/freertos.o: ../Core/Src/freertos.c \
 
 ../Core/Inc/LIS302DL.h:
 
+../Core/Inc/Led.h:
+
 ../Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h:
 
 ../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h:
 
 ../Middlewares/Third_Party/FreeRTOS/Source/include/task.h:
+
+../Middlewares/Third_Party/FreeRTOS/Source/include/timers.h:

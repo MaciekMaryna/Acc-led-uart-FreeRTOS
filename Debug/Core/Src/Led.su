@@ -1,0 +1,6 @@
+Led.c:31:6:Led_ShowTilt	16	static
+Led.c:72:6:Led_AllON	16	static
+Led.c:82:6:Led_AllOFF	16	static
+Led.c:92:6:Led_ToggleAll	16	static
+Led.c:102:6:Led_SetZeroMargin	16	static
+Led.c:108:6:Led_Init	8	static

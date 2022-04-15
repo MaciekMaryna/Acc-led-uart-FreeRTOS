@@ -1,5 +1,9 @@
-freertos.c:104:6:MX_FREERTOS_Init	8	static
-freertos.c:159:6:StartLed4Task	16	static
-freertos.c:177:6:StartHardBitTask	16	static
-freertos.c:207:6:StartAccTask	72	static
-freertos.c:250:6:_putchar	16	static
+freertos.c:146:6:MX_FREERTOS_Init	8	static
+freertos.c:224:6:StartMainTask	48	static
+freertos.c:276:6:StartHardBitTask	16	static
+freertos.c:295:6:StartAccTask	40	static
+freertos.c:346:6:StartUartTask	64	static
+freertos.c:397:6:CallbackTimerPcRequestSimulator	16	static
+freertos.c:408:6:CallbackTimerUartTransmitData	16	static
+freertos.c:417:6:_putchar	16	static
+freertos.c:422:6:HAL_UART_RxCpltCallback	16	static
