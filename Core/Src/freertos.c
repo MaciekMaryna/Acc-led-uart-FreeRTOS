@@ -54,19 +54,14 @@
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN Variables */
 uint8_t ReciveBuffer;
+uint8_t TransmitBuffer;
+
 /* USER CODE END Variables */
 /* Definitions for MainTask */
 osThreadId_t MainTaskHandle;
 const osThreadAttr_t MainTask_attributes = {
   .name = "MainTask",
   .stack_size = 256 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
-};
-/* Definitions for HardBitTask */
-osThreadId_t HardBitTaskHandle;
-const osThreadAttr_t HardBitTask_attributes = {
-  .name = "HardBitTask",
-  .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
 /* Definitions for AccTask */
@@ -83,45 +78,42 @@ const osThreadAttr_t UartTask_attributes = {
   .stack_size = 256 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
+/* Definitions for LedTask */
+osThreadId_t LedTaskHandle;
+const osThreadAttr_t LedTask_attributes = {
+  .name = "LedTask",
+  .stack_size = 128 * 4,
+  .priority = (osPriority_t) osPriorityLow,
+};
 /* Definitions for QueueAccData */
 osMessageQueueId_t QueueAccDataHandle;
 const osMessageQueueAttr_t QueueAccData_attributes = {
   .name = "QueueAccData"
 };
-/* Definitions for QueueUartTransmitData */
-osMessageQueueId_t QueueUartTransmitDataHandle;
-const osMessageQueueAttr_t QueueUartTransmitData_attributes = {
-  .name = "QueueUartTransmitData"
+/* Definitions for QueueUartRequestData */
+osMessageQueueId_t QueueUartRequestDataHandle;
+const osMessageQueueAttr_t QueueUartRequestData_attributes = {
+  .name = "QueueUartRequestData"
 };
-/* Definitions for TimerPcRequestSimulator */
-osTimerId_t TimerPcRequestSimulatorHandle;
-const osTimerAttr_t TimerPcRequestSimulator_attributes = {
-  .name = "TimerPcRequestSimulator"
+/* Definitions for QueueTransmitData */
+osMessageQueueId_t QueueTransmitDataHandle;
+const osMessageQueueAttr_t QueueTransmitData_attributes = {
+  .name = "QueueTransmitData"
 };
-/* Definitions for TimerUartTransmitData */
-osTimerId_t TimerUartTransmitDataHandle;
-const osTimerAttr_t TimerUartTransmitData_attributes = {
-  .name = "TimerUartTransmitData"
+/* Definitions for QueueLedTilt */
+osMessageQueueId_t QueueLedTiltHandle;
+const osMessageQueueAttr_t QueueLedTilt_attributes = {
+  .name = "QueueLedTilt"
 };
-/* Definitions for SemaphoreUartTransmitData */
-osSemaphoreId_t SemaphoreUartTransmitDataHandle;
-const osSemaphoreAttr_t SemaphoreUartTransmitData_attributes = {
-  .name = "SemaphoreUartTransmitData"
+/* Definitions for Semaphore4LedsOn */
+osSemaphoreId_t Semaphore4LedsOnHandle;
+const osSemaphoreAttr_t Semaphore4LedsOn_attributes = {
+  .name = "Semaphore4LedsOn"
 };
-/* Definitions for SemaphoreGetData */
-osSemaphoreId_t SemaphoreGetDataHandle;
-const osSemaphoreAttr_t SemaphoreGetData_attributes = {
-  .name = "SemaphoreGetData"
-};
-/* Definitions for SemaphorePcRequestDataToLed */
-osSemaphoreId_t SemaphorePcRequestDataToLedHandle;
-const osSemaphoreAttr_t SemaphorePcRequestDataToLed_attributes = {
-  .name = "SemaphorePcRequestDataToLed"
-};
-/* Definitions for SemaphorePcRequestDataToText */
-osSemaphoreId_t SemaphorePcRequestDataToTextHandle;
-const osSemaphoreAttr_t SemaphorePcRequestDataToText_attributes = {
-  .name = "SemaphorePcRequestDataToText"
+/* Definitions for SemaphoreDataRequest */
+osSemaphoreId_t SemaphoreDataRequestHandle;
+const osSemaphoreAttr_t SemaphoreDataRequest_attributes = {
+  .name = "SemaphoreDataRequest"
 };
 
 /* Private function prototypes -----------------------------------------------*/
@@ -130,11 +122,9 @@ const osSemaphoreAttr_t SemaphorePcRequestDataToText_attributes = {
 /* USER CODE END FunctionPrototypes */
 
 void StartMainTask(void *argument);
-void StartHardBitTask(void *argument);
 void StartAccTask(void *argument);
 void StartUartTask(void *argument);
-void CallbackTimerPcRequestSimulator(void *argument);
-void CallbackTimerUartTransmitData(void *argument);
+void StartLedTask(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -153,28 +143,15 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE END RTOS_MUTEX */
 
   /* Create the semaphores(s) */
-  /* creation of SemaphoreUartTransmitData */
-  SemaphoreUartTransmitDataHandle = osSemaphoreNew(1, 1, &SemaphoreUartTransmitData_attributes);
+  /* creation of Semaphore4LedsOn */
+  Semaphore4LedsOnHandle = osSemaphoreNew(1, 1, &Semaphore4LedsOn_attributes);
 
-  /* creation of SemaphoreGetData */
-  SemaphoreGetDataHandle = osSemaphoreNew(1, 1, &SemaphoreGetData_attributes);
-
-  /* creation of SemaphorePcRequestDataToLed */
-  SemaphorePcRequestDataToLedHandle = osSemaphoreNew(1, 1, &SemaphorePcRequestDataToLed_attributes);
-
-  /* creation of SemaphorePcRequestDataToText */
-  SemaphorePcRequestDataToTextHandle = osSemaphoreNew(1, 1, &SemaphorePcRequestDataToText_attributes);
+  /* creation of SemaphoreDataRequest */
+  SemaphoreDataRequestHandle = osSemaphoreNew(1, 1, &SemaphoreDataRequest_attributes);
 
   /* USER CODE BEGIN RTOS_SEMAPHORES */
   /* add semaphores, ... */
   /* USER CODE END RTOS_SEMAPHORES */
-
-  /* Create the timer(s) */
-  /* creation of TimerPcRequestSimulator */
-  TimerPcRequestSimulatorHandle = osTimerNew(CallbackTimerPcRequestSimulator, osTimerPeriodic, NULL, &TimerPcRequestSimulator_attributes);
-
-  /* creation of TimerUartTransmitData */
-  TimerUartTransmitDataHandle = osTimerNew(CallbackTimerUartTransmitData, osTimerPeriodic, NULL, &TimerUartTransmitData_attributes);
 
   /* USER CODE BEGIN RTOS_TIMERS */
   /* start timers, add new ones, ... */
@@ -184,8 +161,14 @@ void MX_FREERTOS_Init(void) {
   /* creation of QueueAccData */
   QueueAccDataHandle = osMessageQueueNew (8, sizeof(LIS302DL_DataScaled_t), &QueueAccData_attributes);
 
-  /* creation of QueueUartTransmitData */
-  QueueUartTransmitDataHandle = osMessageQueueNew (8, sizeof(LIS302DL_DataScaled_t), &QueueUartTransmitData_attributes);
+  /* creation of QueueUartRequestData */
+  QueueUartRequestDataHandle = osMessageQueueNew (8, sizeof(uint8_t), &QueueUartRequestData_attributes);
+
+  /* creation of QueueTransmitData */
+  QueueTransmitDataHandle = osMessageQueueNew (8, sizeof(LIS302DL_DataScaled_t), &QueueTransmitData_attributes);
+
+  /* creation of QueueLedTilt */
+  QueueLedTiltHandle = osMessageQueueNew (8, sizeof(Led_Tilt_t), &QueueLedTilt_attributes);
 
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
@@ -195,14 +178,14 @@ void MX_FREERTOS_Init(void) {
   /* creation of MainTask */
   MainTaskHandle = osThreadNew(StartMainTask, NULL, &MainTask_attributes);
 
-  /* creation of HardBitTask */
-  HardBitTaskHandle = osThreadNew(StartHardBitTask, NULL, &HardBitTask_attributes);
-
   /* creation of AccTask */
   AccTaskHandle = osThreadNew(StartAccTask, NULL, &AccTask_attributes);
 
   /* creation of UartTask */
   UartTaskHandle = osThreadNew(StartUartTask, NULL, &UartTask_attributes);
+
+  /* creation of LedTask */
+  LedTaskHandle = osThreadNew(StartLedTask, NULL, &LedTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -225,64 +208,25 @@ void StartMainTask(void *argument)
 {
   /* USER CODE BEGIN StartMainTask */
 	LIS302DL_DataScaled_t _myData;
-	Led_Tilt_t actualTilt;
+	Led_Tilt_t _myTilt;
 
-	xTimerChangePeriod((TimerHandle_t)TimerPcRequestSimulatorHandle, 3000 / portTICK_PERIOD_MS, portMAX_DELAY);
+	xSemaphoreTake(Semaphore4LedsOnHandle,0);
 
   /* Infinite loop */
   for(;;)
   {
 
-	  //get data()
-	  if (pdTRUE == xSemaphoreTake(SemaphoreGetDataHandle,0))
-	  {
-		  xQueueReceive(QueueAccDataHandle, &_myData, portMAX_DELAY);
-	  }
+	xSemaphoreGive(SemaphoreDataRequestHandle);
+	xQueueReceive(QueueAccDataHandle, &_myData, 0);
+	xQueueSendToBack(QueueTransmitDataHandle, &_myData, 0);
+	_myTilt.x = _myData.x;
+	_myTilt.y = _myData.y;
+	xQueueSendToBack(QueueLedTiltHandle, &_myTilt, 0);
 
-	  //Parse_ACC_data()
-	  actualTilt.x = _myData.x;
-	  actualTilt.y = _myData.y;
-
-	  //Set leds
-	  if (pdTRUE == xSemaphoreGive((SemaphoreHandle_t)SemaphorePcRequestDataToLedHandle))
-	  {
-			Led_AllON();
-	  }
-	  else
-	  {
-		  	Led_ShowTilt(actualTilt);
-	  }
-
-	  if (pdTRUE == xSemaphoreTake(SemaphoreUartTransmitDataHandle,0))
-	  {
-		  xQueueSendToBack(QueueUartTransmitDataHandle, &_myData, 0);
-	  }
-
-
-	  //wait 500ms
-	  vTaskDelay(100 / portTICK_PERIOD_MS);
+	vTaskDelay(100 / portTICK_PERIOD_MS);
 
   }
   /* USER CODE END StartMainTask */
-}
-
-/* USER CODE BEGIN Header_StartHardBitTask */
-/**
-* @brief Function implementing the HardBitTask thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_StartHardBitTask */
-void StartHardBitTask(void *argument)
-{
-  /* USER CODE BEGIN StartHardBitTask */
-  /* Infinite loop */
-  for(;;)
-  {
-	  	//printf(".");
-		vTaskDelay(500 / portTICK_PERIOD_MS);
-  }
-  /* USER CODE END StartHardBitTask */
 }
 
 /* USER CODE BEGIN Header_StartAccTask */
@@ -323,15 +267,12 @@ void StartAccTask(void *argument)
   /* Infinite loop */
   for(;;)
   {
-	  if (pdTRUE == xSemaphoreGive((SemaphoreHandle_t)SemaphoreGetDataHandle))
+
+	  if (pdTRUE == xSemaphoreTake(SemaphoreDataRequestHandle, portMAX_DELAY))
 	  {
-		  //if (LIS302DL_DRDY_Test())
-		  {
-			  _myData = LIS302DL_GetDataScaled();
-			  xQueueSendToBack(QueueAccDataHandle, &_myData, portMAX_DELAY);
-		  }
+		  _myData = LIS302DL_GetDataScaled();
+		  xQueueSendToBack(QueueAccDataHandle, &_myData, 0);
 	  }
-	  vTaskDelay(100 / portTICK_PERIOD_MS);
   }
   /* USER CODE END StartAccTask */
 }
@@ -346,70 +287,63 @@ void StartAccTask(void *argument)
 void StartUartTask(void *argument)
 {
   /* USER CODE BEGIN StartUartTask */
-  /* Infinite loop */
-	LIS302DL_DataScaled_t _myData;
 
-	xTimerChangePeriod((TimerHandle_t)TimerUartTransmitDataHandle, 100 / portTICK_PERIOD_MS, portMAX_DELAY);
+	LIS302DL_DataScaled_t _myData;
+	uint8_t buffor;
 	HAL_UART_Receive_IT(&huart2, &ReciveBuffer, 1);
 
+	/* Infinite loop */
   for(;;)
   {
 
-	  xQueueReceive(QueueUartTransmitDataHandle, &_myData, portMAX_DELAY);
+	  	if (pdPASS == xQueueReceive(QueueUartRequestDataHandle, &buffor, 0))
+	  	{
+	  		switch (buffor)
+			{
+	  			case '?':	printf("PC is asking for tilt data.\n\r");
+	  						break;
+	  			default	:	printf("Unrecognized request from PC.\n\r");
+			}
+	  		xSemaphoreGive(Semaphore4LedsOnHandle);
+	  	}
 
-		  if (pdTRUE == xSemaphoreGive((SemaphoreHandle_t)SemaphorePcRequestDataToTextHandle))
-		  {
-			  printf("\n\r****************************************************");
-			  switch (ReciveBuffer)
-			  {
-
-			  case '?':
-						  printf("\n\r*** What do you want PC? <- Answer to PC request ***");
-						  break;
-			  case 'x':
-			  case 'X':
-						  printf("\n\r*** x = %4.1f <- Answer to PC request             ***",_myData.x);
-						  break;
-			  case 'y':
-			  case 'Y':
-						  printf("\n\r*** y = %4.1f <- Answer to PC request             ***",_myData.y);
-						  break;
-			  case 'z':
-			  case 'Z':
-						  printf("\n\r*** z = %4.1f <- Answer to PC request             ***",_myData.z);
-						  break;
-			  default:
-						  printf("\n\r*** Unknown command <- Answer to PC request");
-			  }
-			  printf("\n\r****************************************************");
-		  }
-		  else
-		  {
-			  printf("\n\rx:%4.1f y:%4.1f z:%4.1f", _myData.x, _myData.y, _myData.z);
-		  }
-
-	  vTaskDelay(100 / portTICK_PERIOD_MS);
+		if (pdPASS == xQueueReceive(QueueTransmitDataHandle, &_myData, portMAX_DELAY))
+		{
+			printf("x:%4.1f y:%4.1f z:%4.1f\n\r", _myData.x, _myData.y, _myData.z);
+		}
   }
   /* USER CODE END StartUartTask */
 }
 
-/* CallbackTimerPcRequestSimulator function */
-void CallbackTimerPcRequestSimulator(void *argument)
+/* USER CODE BEGIN Header_StartLedTask */
+/**
+* @brief Function implementing the LedTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartLedTask */
+void StartLedTask(void *argument)
 {
-  /* USER CODE BEGIN CallbackTimerPcRequestSimulator */
-//	xSemaphoreTake((SemaphoreHandle_t)SemaphorePcRequestDataToLedHandle, 0);
-//	xSemaphoreTake((SemaphoreHandle_t)SemaphorePcRequestDataToTextHandle, 0);
-	//printf("\n\rPC");
+  /* USER CODE BEGIN StartLedTask */
 
-  /* USER CODE END CallbackTimerPcRequestSimulator */
-}
+	Led_Tilt_t _myTilt;
+	/* Infinite loop */
+	for(;;)
+	{
 
-/* CallbackTimerUartTransmitData function */
-void CallbackTimerUartTransmitData(void *argument)
-{
-  /* USER CODE BEGIN CallbackTimerUartTransmitData */
-	xSemaphoreGive(SemaphoreUartTransmitDataHandle);
-  /* USER CODE END CallbackTimerUartTransmitData */
+	  if (pdTRUE == xSemaphoreTake(Semaphore4LedsOnHandle, 0))
+	  {
+		  Led_AllON();
+		  vTaskDelay(500 / portTICK_PERIOD_MS);
+	  }
+	  else
+	  {
+		  xQueueReceive(QueueLedTiltHandle, &_myTilt, 0);
+		  Led_ShowTilt(_myTilt);
+		  vTaskDelay(100 / portTICK_PERIOD_MS);
+	  }
+	}
+  /* USER CODE END StartLedTask */
 }
 
 /* Private application code --------------------------------------------------*/
@@ -417,20 +351,18 @@ void CallbackTimerUartTransmitData(void *argument)
 void _putchar(char character)
 {
 	HAL_UART_Transmit(&huart2, (uint8_t*) &character, 1, 1000);
+
 }
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	if (USART2 == huart->Instance)
 	{
-//		printf("\n\rSomething is comming on UART");
-		xSemaphoreTakeFromISR((SemaphoreHandle_t)SemaphorePcRequestDataToLedHandle, NULL);
-		xSemaphoreTakeFromISR((SemaphoreHandle_t)SemaphorePcRequestDataToTextHandle, NULL);
+		xQueueSendToBackFromISR(QueueUartRequestDataHandle, &ReciveBuffer, NULL);
 		HAL_UART_Receive_IT(&huart2, &ReciveBuffer, 1);
-//		printf("\n\rSomething is comming on UART");
 	}
-
 }
+
 /* USER CODE END Application */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -1,10 +1,9 @@
 #MicroXplorer Configuration settings - do not modify
-FREERTOS.BinarySemaphores01=SemaphoreUartTransmitData,Dynamic,NULL;SemaphoreGetData,Dynamic,NULL;SemaphorePcRequestDataToLed,Dynamic,NULL;SemaphorePcRequestDataToText,Dynamic,NULL
+FREERTOS.BinarySemaphores01=Semaphore4LedsOn,Dynamic,NULL;SemaphoreDataRequest,Dynamic,NULL
 FREERTOS.FootprintOK=true
-FREERTOS.IPParameters=Tasks01,FootprintOK,BinarySemaphores01,Queues01,Timers01
-FREERTOS.Queues01=QueueAccData,8,LIS302DL_DataScaled_t,0,Dynamic,NULL,NULL;QueueUartTransmitData,8,LIS302DL_DataScaled_t,0,Dynamic,NULL,NULL
-FREERTOS.Tasks01=MainTask,24,256,StartMainTask,Default,NULL,Dynamic,NULL,NULL;HardBitTask,24,128,StartHardBitTask,Default,NULL,Dynamic,NULL,NULL;AccTask,24,128,StartAccTask,Default,NULL,Dynamic,NULL,NULL;UartTask,24,256,StartUartTask,Default,NULL,Dynamic,NULL,NULL
-FREERTOS.Timers01=TimerPcRequestSimulator,CallbackTimerPcRequestSimulator,osTimerPeriodic,Default,NULL,Dynamic,NULL;TimerUartTransmitData,CallbackTimerUartTransmitData,osTimerPeriodic,Default,NULL,Dynamic,NULL
+FREERTOS.IPParameters=Tasks01,FootprintOK,Queues01,BinarySemaphores01
+FREERTOS.Queues01=QueueAccData,8,LIS302DL_DataScaled_t,0,Dynamic,NULL,NULL;QueueUartRequestData,8,uint8_t,0,Dynamic,NULL,NULL;QueueTransmitData,8,LIS302DL_DataScaled_t,0,Dynamic,NULL,NULL;QueueLedTilt,8,Led_Tilt_t,0,Dynamic,NULL,NULL
+FREERTOS.Tasks01=MainTask,24,256,StartMainTask,Default,NULL,Dynamic,NULL,NULL;AccTask,24,128,StartAccTask,Default,NULL,Dynamic,NULL,NULL;UartTask,24,256,StartUartTask,Default,NULL,Dynamic,NULL,NULL;LedTask,8,128,StartLedTask,Default,NULL,Dynamic,NULL,NULL
 File.Version=6
 GPIO.groupedBy=Group By Peripherals
 KeepUserPlacement=false
